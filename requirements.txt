@@ -1,0 +1,13 @@
+streamlit>=1.30
+pandas
+numpy
+beautifulsoup4
+aiohttp
+asyncio
+playwright
+nltk
+transformers
+torch
+requests
+feedparser
+lxml

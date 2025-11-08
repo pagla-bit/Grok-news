@@ -3,7 +3,6 @@ pandas
 numpy
 beautifulsoup4
 aiohttp
-asyncio
 playwright
 nltk
 transformers

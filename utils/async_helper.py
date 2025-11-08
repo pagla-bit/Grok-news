@@ -1,19 +1,16 @@
 # utils/async_helper.py
 import asyncio
 
-async def run_single(task_func, arg):
-    return await task_func(arg)
+async def _worker(sem, func, arg):
+    async with sem:
+        return await func(arg)
 
-def run_async_tasks(task_args, task_func, max_concurrent=10):
-    semaphore = asyncio.Semaphore(max_concurrent)
+def run_async_tasks(task_args, task_func, max_concurrent: int = 10):
+    """Run many (arg → await task_func(arg)) with limited concurrency."""
+    sem = asyncio.Semaphore(max_concurrent)
 
-    async def sem_task(arg):
-        async with semaphore:
-            return await run_single(task_func, arg)
+    async def main():
+        return await asyncio.gather(*[_worker(sem, task_func, a) for a in task_args])
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    tasks = [sem_task(arg) for arg in task_args]
-    results = loop.run_until_complete(asyncio.gather(*tasks))
-    loop.close()
-    return results
+    # Streamlit runs in the main thread → create a fresh loop
+    return asyncio.run(main())

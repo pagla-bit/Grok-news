@@ -1,14 +1,16 @@
 # scraper/googlenews.py
 import feedparser
-import re
 
-def get_google_news(ticker: str, limit=10):
+def get_google_news(ticker: str, limit: int = 10) -> list[str]:
+    """Return up to *limit* titles from Google News RSS."""
     query = f"{ticker} stock"
     url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
     feed = feedparser.parse(url)
-    news = []
+    news: list[str] = []
+
     for entry in feed.entries[:limit]:
-        title = entry.title
-        if ticker.upper() in title.upper():
+        title = entry.get("title", "").strip()
+        if title and ticker.upper() in title.upper():
             news.append(title)
+
     return news[:limit]
